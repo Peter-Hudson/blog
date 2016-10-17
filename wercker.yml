@@ -1,23 +1,26 @@
-box: debian
+box: wercker/golang
+# Build definition
 build:
+  # The steps that will be executed on build
   steps:
-    - validate-wercker-step
-    - install-packages:
-        packages: zip
+    # Sets the go workspace and places you package
+    # at the right place in the workspace tree
+    - setup-go-workspace
+
+    # Gets the dependencies
     - script:
-        name: Install latest 2 versions of Hugo
+        name: go get
         code: |
-          mkdir bin
-          curl -sL https://github.com/spf13/hugo/releases/download/v0.17/hugo_0.17_Linux-64bit.tar.gz -o hugo_0.17_Linux-64bit.tar.gz
-          mkdir 0.17
-          tar xzf hugo_0.17_Linux-64bit.tar.gz --directory 0.17
-          mv 0.17/hugo_0.17_linux_amd64/hugo_0.17_linux_amd64 bin/hugo_0.17
-          curl -sL https://github.com/spf13/hugo/releases/download/v0.16/hugo_0.16_linux-64bit.tgz -o hugo_0.16_linux-64bit.tgz
-          mkdir 0.16
-          tar xzf hugo_0.16_linux-64bit.tgz --directory 0.16
-          mv 0.16/hugo bin/hugo_0.16
+          cd $WERCKER_SOURCE_DIR
+          go version
+          go get -t ./...
+    # Build the project
     - script:
-        name: Move the important stuff to output
+        name: go build
         code: |
-          mv README.md run.sh wercker-step.yml wercker.yml bin/ $WERCKER_OUTPUT_DIR
-          ls -lh $WERCKER_OUTPUT_DIR
+          go build ./...
+    # Test the project
+    - script:
+        name: go test
+        code: |
+          go test ./...
