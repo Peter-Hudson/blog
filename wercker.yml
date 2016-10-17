@@ -1,4 +1,4 @@
-box: golang
+box: debian
 build:
   steps:
     - validate-wercker-step
